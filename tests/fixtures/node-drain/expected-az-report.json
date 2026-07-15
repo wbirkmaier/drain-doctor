@@ -1,0 +1,102 @@
+{
+  "availability_zone": "us-west-2a",
+  "analyzed_nodes": [
+    "ip-10-0-42-17",
+    "ip-10-0-42-18"
+  ],
+  "node_reports": [
+    {
+      "node": "ip-10-0-42-17",
+      "availability_zone": "us-west-2a",
+      "pod_count": 3,
+      "blockers": [
+        {
+          "kind": "daemonset_pod",
+          "severity": "high",
+          "pod": "kube-system/aws-node-9lm9x",
+          "message": "pod is managed by a DaemonSet and will not be evicted by a standard drain"
+        },
+        {
+          "kind": "pdb_exhausted",
+          "severity": "high",
+          "pod": "payments/api-7786f8dd7b-mlwzg",
+          "message": "PodDisruptionBudget does not currently allow another eviction"
+        },
+        {
+          "kind": "local_storage",
+          "severity": "high",
+          "pod": "search/indexer-0",
+          "message": "pod relies on node-local storage that may require manual handling"
+        },
+        {
+          "kind": "replica_shortfall",
+          "severity": "high",
+          "pod": "search/indexer-0",
+          "message": "workload has no spare healthy replica to absorb this eviction"
+        },
+        {
+          "kind": "node_selector_mismatch",
+          "severity": "high",
+          "pod": "search/indexer-0",
+          "message": "no remaining node matches the pod node selector"
+        }
+      ],
+      "warnings": [
+        {
+          "kind": "ephemeral_storage",
+          "severity": "medium",
+          "pod": "payments/api-7786f8dd7b-mlwzg",
+          "message": "pod uses emptyDir and will lose ephemeral data on eviction"
+        },
+        {
+          "kind": "long_termination_grace_period",
+          "severity": "medium",
+          "pod": "payments/api-7786f8dd7b-mlwzg",
+          "message": "pod has a long termination grace period and may slow the drain"
+        },
+        {
+          "kind": "degraded_workload",
+          "severity": "medium",
+          "pod": "payments/api-7786f8dd7b-mlwzg",
+          "message": "workload already has unavailable replicas before the drain"
+        },
+        {
+          "kind": "anti_affinity_risk",
+          "severity": "medium",
+          "pod": "payments/api-7786f8dd7b-mlwzg",
+          "message": "hard anti-affinity may limit safe rescheduling options after eviction"
+        }
+      ],
+      "total_cpu_millicores": 925,
+      "total_memory_mib": 1664,
+      "remaining_node_capacity_cpu_millicores": 1100,
+      "remaining_node_capacity_memory_mib": 2496,
+      "eviction_sequence": [
+        "payments/api-7786f8dd7b-mlwzg",
+        "search/indexer-0",
+        "kube-system/aws-node-9lm9x"
+      ],
+      "advisory_patches": [
+        "apiVersion: policy/v1\nkind: PodDisruptionBudget\nmetadata:\n  name: api-availability\n  namespace: payments\nspec:\n  minAvailable: 1\n",
+        "apiVersion: apps/v1\nkind: StatefulSet\nmetadata:\n  name: indexer\n  namespace: search\nspec:\n  template:\n    spec:\n      nodeSelector:\n        nodepool: general\n"
+      ]
+    },
+    {
+      "node": "ip-10-0-42-18",
+      "availability_zone": "us-west-2a",
+      "pod_count": 1,
+      "blockers": [],
+      "warnings": [],
+      "total_cpu_millicores": 900,
+      "total_memory_mib": 1600,
+      "remaining_node_capacity_cpu_millicores": 3075,
+      "remaining_node_capacity_memory_mib": 14720,
+      "eviction_sequence": [
+        "ops/metrics-6d58f8c6b9-ns64w"
+      ],
+      "advisory_patches": []
+    }
+  ],
+  "blocker_count": 5,
+  "warning_count": 4
+}
