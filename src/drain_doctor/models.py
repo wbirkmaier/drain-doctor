@@ -68,4 +68,5 @@ class NodeDrainReport(BaseModel):
     total_memory_mib: int
     remaining_node_capacity_cpu_millicores: int
     remaining_node_capacity_memory_mib: int
+    eviction_sequence: list[str] = Field(default_factory=list)
     advisory_patches: list[str] = Field(default_factory=list)

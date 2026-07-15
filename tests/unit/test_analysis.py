@@ -29,3 +29,14 @@ def test_analyze_node_drain_sums_requested_resources() -> None:
     assert report.total_memory_mib == 1664
     assert report.remaining_node_capacity_cpu_millicores == 1100
     assert report.remaining_node_capacity_memory_mib == 2496
+
+
+def test_analyze_node_drain_emits_eviction_sequence_and_advisory_patches() -> None:
+    report = analyze_node_drain(load_fixture(Path("tests/fixtures/node-drain")), "ip-10-0-42-17")
+
+    assert report.eviction_sequence == [
+        "payments/api-7786f8dd7b-mlwzg",
+        "search/indexer-0",
+        "kube-system/aws-node-9lm9x",
+    ]
+    assert len(report.advisory_patches) == 2
