@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field
 
 class RawNode(BaseModel):
     name: str
+    node_group: str = "default"
     availability_zone: str
     allocatable_cpu: int
     allocatable_memory_mib: int
@@ -70,3 +71,11 @@ class NodeDrainReport(BaseModel):
     remaining_node_capacity_memory_mib: int
     eviction_sequence: list[str] = Field(default_factory=list)
     advisory_patches: list[str] = Field(default_factory=list)
+
+
+class NodeGroupDrainReport(BaseModel):
+    node_group: str
+    analyzed_nodes: list[str]
+    node_reports: list[NodeDrainReport]
+    blocker_count: int
+    warning_count: int

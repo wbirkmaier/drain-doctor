@@ -5,7 +5,7 @@ from typing import Annotated
 
 import typer
 
-from drain_doctor.analysis import analyze_node_drain
+from drain_doctor.analysis import analyze_node_drain, analyze_node_group
 from drain_doctor.exceptions import DrainDoctorError
 from drain_doctor.fixtures import load_fixture
 
@@ -43,6 +43,29 @@ def node(
 ) -> None:
     try:
         report = analyze_node_drain(load_fixture(fixtures), node_name)
+    except DrainDoctorError as error:
+        raise typer.Exit(code=error.exit_code) from error
+
+    typer.echo(report.model_dump_json(indent=2))
+
+
+@app.command("nodegroup")
+def nodegroup(
+    node_group: Annotated[str, typer.Argument(help="Node group name to simulate draining.")],
+    fixtures: Annotated[
+        Path,
+        typer.Option(
+            "--fixtures",
+            exists=True,
+            file_okay=False,
+            dir_okay=True,
+            readable=True,
+            help="Directory containing cluster.json fixture data.",
+        ),
+    ],
+) -> None:
+    try:
+        report = analyze_node_group(load_fixture(fixtures), node_group)
     except DrainDoctorError as error:
         raise typer.Exit(code=error.exit_code) from error
 

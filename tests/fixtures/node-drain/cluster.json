@@ -2,6 +2,7 @@
   "nodes": [
     {
       "name": "ip-10-0-42-17",
+      "node_group": "workers-a",
       "availability_zone": "us-west-2a",
       "allocatable_cpu": 4000,
       "allocatable_memory_mib": 16384,
@@ -11,6 +12,7 @@
     },
     {
       "name": "ip-10-0-42-18",
+      "node_group": "workers-a",
       "availability_zone": "us-west-2a",
       "allocatable_cpu": 2000,
       "allocatable_memory_mib": 4096,
