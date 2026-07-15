@@ -7,3 +7,4 @@
 - Added PodDisruptionBudget and replica-aware drain blocker analysis.
 - Added remaining-capacity and placement-risk warnings for conservative rescheduling analysis.
 - Added ordered eviction guidance and advisory patch suggestions.
+- Added nodegroup-level disruption rollups across member nodes.
