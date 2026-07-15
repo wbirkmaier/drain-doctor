@@ -27,4 +27,8 @@ DrainDoctor estimates what will block or degrade a Kubernetes node drain before 
 
 ## Status
 
-Repository scaffolding and CLI baseline are in place. Drain simulation slices land next.
+```bash
+uv run drain-doctor node ip-10-0-42-17 --fixtures tests/fixtures/node-drain
+```
+
+The current slice analyzes one node from offline fixtures and reports basic blockers and warnings. Broader scheduling and zone analysis land in later slices.
