@@ -127,8 +127,7 @@ def analyze_node_drain(fixture: RawFixture, node_name: str) -> NodeDrainReport:
                         severity="medium",
                         pod=pod_ref,
                         message=(
-                            "hard anti-affinity may limit safe rescheduling options "
-                            "after eviction"
+                            "hard anti-affinity may limit safe rescheduling options after eviction"
                         ),
                     )
                 )
@@ -151,8 +150,7 @@ def analyze_node_drain(fixture: RawFixture, node_name: str) -> NodeDrainReport:
                 severity="high",
                 pod="node-summary",
                 message=(
-                    "remaining nodes do not have enough free memory for the "
-                    "drained workload set"
+                    "remaining nodes do not have enough free memory for the drained workload set"
                 ),
             )
         )
