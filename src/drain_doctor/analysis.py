@@ -13,6 +13,14 @@ def analyze_node_drain(fixture: RawFixture, node_name: str) -> NodeDrainReport:
         (pod for pod in fixture.pods if pod.node_name == node_name),
         key=lambda item: (item.namespace, item.name),
     )
+    remaining_nodes = [item for item in fixture.nodes if item.name != node_name]
+    scheduled_elsewhere = [pod for pod in fixture.pods if pod.node_name != node_name]
+    remaining_cpu = sum(node.allocatable_cpu for node in remaining_nodes) - sum(
+        pod.cpu_millicores for pod in scheduled_elsewhere
+    )
+    remaining_memory = sum(node.allocatable_memory_mib for node in remaining_nodes) - sum(
+        pod.memory_mib for pod in scheduled_elsewhere
+    )
     blockers: list[DrainFinding] = []
     warnings: list[DrainFinding] = []
     workload_map = {(item.namespace, item.name): item for item in fixture.workloads}
@@ -88,6 +96,66 @@ def analyze_node_drain(fixture: RawFixture, node_name: str) -> NodeDrainReport:
                     message="PodDisruptionBudget does not currently allow another eviction",
                 )
             )
+        if pod.node_selector:
+            matches = [
+                candidate
+                for candidate in remaining_nodes
+                if all(
+                    candidate.labels.get(key) == value for key, value in pod.node_selector.items()
+                )
+            ]
+            if not matches:
+                blockers.append(
+                    DrainFinding(
+                        kind="node_selector_mismatch",
+                        severity="high",
+                        pod=pod_ref,
+                        message="no remaining node matches the pod node selector",
+                    )
+                )
+        if pod.hard_anti_affinity_key is not None:
+            sibling_present = any(
+                other.namespace == pod.namespace
+                and other.owner_name == pod.owner_name
+                and other.node_name != node_name
+                for other in fixture.pods
+            )
+            if not sibling_present:
+                warnings.append(
+                    DrainFinding(
+                        kind="anti_affinity_risk",
+                        severity="medium",
+                        pod=pod_ref,
+                        message=(
+                            "hard anti-affinity may limit safe rescheduling options "
+                            "after eviction"
+                        ),
+                    )
+                )
+
+    drained_cpu = sum(pod.cpu_millicores for pod in pods)
+    drained_memory = sum(pod.memory_mib for pod in pods)
+    if drained_cpu > remaining_cpu:
+        blockers.append(
+            DrainFinding(
+                kind="insufficient_remaining_cpu",
+                severity="high",
+                pod="node-summary",
+                message="remaining nodes do not have enough free CPU for the drained workload set",
+            )
+        )
+    if drained_memory > remaining_memory:
+        blockers.append(
+            DrainFinding(
+                kind="insufficient_remaining_memory",
+                severity="high",
+                pod="node-summary",
+                message=(
+                    "remaining nodes do not have enough free memory for the "
+                    "drained workload set"
+                ),
+            )
+        )
 
     return NodeDrainReport(
         node=node.name,
@@ -97,5 +165,7 @@ def analyze_node_drain(fixture: RawFixture, node_name: str) -> NodeDrainReport:
         warnings=warnings,
         total_cpu_millicores=sum(pod.cpu_millicores for pod in pods),
         total_memory_mib=sum(pod.memory_mib for pod in pods),
+        remaining_node_capacity_cpu_millicores=remaining_cpu,
+        remaining_node_capacity_memory_mib=remaining_memory,
         advisory_patches=[],
     )

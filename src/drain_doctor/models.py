@@ -8,6 +8,7 @@ class RawNode(BaseModel):
     availability_zone: str
     allocatable_cpu: int
     allocatable_memory_mib: int
+    labels: dict[str, str] = Field(default_factory=dict)
 
 
 class RawPod(BaseModel):
@@ -23,6 +24,8 @@ class RawPod(BaseModel):
     termination_grace_period_seconds: int = 30
     cpu_millicores: int = 0
     memory_mib: int = 0
+    node_selector: dict[str, str] = Field(default_factory=dict)
+    hard_anti_affinity_key: str | None = None
 
 
 class RawWorkload(BaseModel):
@@ -63,4 +66,6 @@ class NodeDrainReport(BaseModel):
     warnings: list[DrainFinding]
     total_cpu_millicores: int
     total_memory_mib: int
+    remaining_node_capacity_cpu_millicores: int
+    remaining_node_capacity_memory_mib: int
     advisory_patches: list[str] = Field(default_factory=list)
