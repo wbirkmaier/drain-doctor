@@ -79,3 +79,11 @@ class NodeGroupDrainReport(BaseModel):
     node_reports: list[NodeDrainReport]
     blocker_count: int
     warning_count: int
+
+
+class AvailabilityZoneDrainReport(BaseModel):
+    availability_zone: str
+    analyzed_nodes: list[str]
+    node_reports: list[NodeDrainReport]
+    blocker_count: int
+    warning_count: int

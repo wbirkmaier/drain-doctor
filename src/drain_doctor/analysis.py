@@ -1,7 +1,13 @@
 from __future__ import annotations
 
 from drain_doctor.exceptions import DrainDoctorError
-from drain_doctor.models import DrainFinding, NodeDrainReport, NodeGroupDrainReport, RawFixture
+from drain_doctor.models import (
+    AvailabilityZoneDrainReport,
+    DrainFinding,
+    NodeDrainReport,
+    NodeGroupDrainReport,
+    RawFixture,
+)
 
 
 def analyze_node_drain(fixture: RawFixture, node_name: str) -> NodeDrainReport:
@@ -218,6 +224,27 @@ def analyze_node_group(fixture: RawFixture, node_group: str) -> NodeGroupDrainRe
     reports = [analyze_node_drain(fixture, node_name) for node_name in nodes]
     return NodeGroupDrainReport(
         node_group=node_group,
+        analyzed_nodes=nodes,
+        node_reports=reports,
+        blocker_count=sum(len(report.blockers) for report in reports),
+        warning_count=sum(len(report.warnings) for report in reports),
+    )
+
+
+def analyze_availability_zone(
+    fixture: RawFixture, availability_zone: str
+) -> AvailabilityZoneDrainReport:
+    nodes = sorted(
+        item.name for item in fixture.nodes if item.availability_zone == availability_zone
+    )
+    if not nodes:
+        raise DrainDoctorError(
+            f"availability zone not found in fixture: {availability_zone}", exit_code=3
+        )
+
+    reports = [analyze_node_drain(fixture, node_name) for node_name in nodes]
+    return AvailabilityZoneDrainReport(
+        availability_zone=availability_zone,
         analyzed_nodes=nodes,
         node_reports=reports,
         blocker_count=sum(len(report.blockers) for report in reports),
