@@ -1,0 +1,36 @@
+{
+  "node": "ip-10-0-42-17",
+  "availability_zone": "us-west-2a",
+  "pod_count": 3,
+  "blockers": [
+    {
+      "kind": "daemonset_pod",
+      "severity": "high",
+      "pod": "kube-system/aws-node-9lm9x",
+      "message": "pod is managed by a DaemonSet and will not be evicted by a standard drain"
+    },
+    {
+      "kind": "local_storage",
+      "severity": "high",
+      "pod": "search/indexer-0",
+      "message": "pod relies on node-local storage that may require manual handling"
+    }
+  ],
+  "warnings": [
+    {
+      "kind": "ephemeral_storage",
+      "severity": "medium",
+      "pod": "payments/api-7786f8dd7b-mlwzg",
+      "message": "pod uses emptyDir and will lose ephemeral data on eviction"
+    },
+    {
+      "kind": "long_termination_grace_period",
+      "severity": "medium",
+      "pod": "payments/api-7786f8dd7b-mlwzg",
+      "message": "pod has a long termination grace period and may slow the drain"
+    }
+  ],
+  "total_cpu_millicores": 925,
+  "total_memory_mib": 1664,
+  "advisory_patches": []
+}

@@ -1,0 +1,45 @@
+{
+  "nodes": [
+    {
+      "name": "ip-10-0-42-17",
+      "availability_zone": "us-west-2a",
+      "allocatable_cpu": 4000,
+      "allocatable_memory_mib": 16384
+    }
+  ],
+  "pods": [
+    {
+      "namespace": "kube-system",
+      "name": "aws-node-9lm9x",
+      "node_name": "ip-10-0-42-17",
+      "owner_kind": "DaemonSet",
+      "owner_name": "aws-node",
+      "daemonset": true,
+      "termination_grace_period_seconds": 30,
+      "cpu_millicores": 25,
+      "memory_mib": 64
+    },
+    {
+      "namespace": "payments",
+      "name": "api-7786f8dd7b-mlwzg",
+      "node_name": "ip-10-0-42-17",
+      "owner_kind": "Deployment",
+      "owner_name": "api",
+      "uses_empty_dir": true,
+      "termination_grace_period_seconds": 600,
+      "cpu_millicores": 500,
+      "memory_mib": 1024
+    },
+    {
+      "namespace": "search",
+      "name": "indexer-0",
+      "node_name": "ip-10-0-42-17",
+      "owner_kind": "StatefulSet",
+      "owner_name": "indexer",
+      "uses_local_persistent_volume": true,
+      "termination_grace_period_seconds": 120,
+      "cpu_millicores": 400,
+      "memory_mib": 576
+    }
+  ]
+}

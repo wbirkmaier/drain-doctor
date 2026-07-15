@@ -1,0 +1,48 @@
+from __future__ import annotations
+
+from pydantic import BaseModel, Field
+
+
+class RawNode(BaseModel):
+    name: str
+    availability_zone: str
+    allocatable_cpu: int
+    allocatable_memory_mib: int
+
+
+class RawPod(BaseModel):
+    namespace: str
+    name: str
+    node_name: str
+    owner_kind: str
+    owner_name: str
+    daemonset: bool = False
+    uses_empty_dir: bool = False
+    uses_host_path: bool = False
+    uses_local_persistent_volume: bool = False
+    termination_grace_period_seconds: int = 30
+    cpu_millicores: int = 0
+    memory_mib: int = 0
+
+
+class RawFixture(BaseModel):
+    nodes: list[RawNode]
+    pods: list[RawPod]
+
+
+class DrainFinding(BaseModel):
+    kind: str
+    severity: str
+    pod: str
+    message: str
+
+
+class NodeDrainReport(BaseModel):
+    node: str
+    availability_zone: str
+    pod_count: int
+    blockers: list[DrainFinding]
+    warnings: list[DrainFinding]
+    total_cpu_millicores: int
+    total_memory_mib: int
+    advisory_patches: list[str] = Field(default_factory=list)
