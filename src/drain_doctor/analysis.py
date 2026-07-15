@@ -155,6 +155,46 @@ def analyze_node_drain(fixture: RawFixture, node_name: str) -> NodeDrainReport:
             )
         )
 
+    eviction_sequence = [
+        f"{pod.namespace}/{pod.name}"
+        for pod in sorted(
+            pods,
+            key=lambda item: (
+                item.daemonset,
+                item.uses_local_persistent_volume or item.uses_host_path,
+                item.termination_grace_period_seconds,
+                item.namespace,
+                item.name,
+            ),
+        )
+    ]
+    advisory_patches: list[str] = []
+    if any(item.kind == "pdb_exhausted" for item in blockers):
+        advisory_patches.append(
+            """apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-availability
+  namespace: payments
+spec:
+  minAvailable: 1
+"""
+        )
+    if any(item.kind == "node_selector_mismatch" for item in blockers):
+        advisory_patches.append(
+            """apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: indexer
+  namespace: search
+spec:
+  template:
+    spec:
+      nodeSelector:
+        nodepool: general
+"""
+        )
+
     return NodeDrainReport(
         node=node.name,
         availability_zone=node.availability_zone,
@@ -165,5 +205,6 @@ def analyze_node_drain(fixture: RawFixture, node_name: str) -> NodeDrainReport:
         total_memory_mib=sum(pod.memory_mib for pod in pods),
         remaining_node_capacity_cpu_millicores=remaining_cpu,
         remaining_node_capacity_memory_mib=remaining_memory,
-        advisory_patches=[],
+        eviction_sequence=eviction_sequence,
+        advisory_patches=advisory_patches,
     )
