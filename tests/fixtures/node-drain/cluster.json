@@ -4,7 +4,19 @@
       "name": "ip-10-0-42-17",
       "availability_zone": "us-west-2a",
       "allocatable_cpu": 4000,
-      "allocatable_memory_mib": 16384
+      "allocatable_memory_mib": 16384,
+      "labels": {
+        "nodepool": "stateful"
+      }
+    },
+    {
+      "name": "ip-10-0-42-18",
+      "availability_zone": "us-west-2a",
+      "allocatable_cpu": 2000,
+      "allocatable_memory_mib": 4096,
+      "labels": {
+        "nodepool": "general"
+      }
     }
   ],
   "pods": [
@@ -28,7 +40,8 @@
       "uses_empty_dir": true,
       "termination_grace_period_seconds": 600,
       "cpu_millicores": 500,
-      "memory_mib": 1024
+      "memory_mib": 1024,
+      "hard_anti_affinity_key": "kubernetes.io/hostname"
     },
     {
       "namespace": "search",
@@ -39,7 +52,20 @@
       "uses_local_persistent_volume": true,
       "termination_grace_period_seconds": 120,
       "cpu_millicores": 400,
-      "memory_mib": 576
+      "memory_mib": 576,
+      "node_selector": {
+        "nodepool": "stateful"
+      }
+    },
+    {
+      "namespace": "ops",
+      "name": "metrics-6d58f8c6b9-ns64w",
+      "node_name": "ip-10-0-42-18",
+      "owner_kind": "Deployment",
+      "owner_name": "metrics",
+      "termination_grace_period_seconds": 30,
+      "cpu_millicores": 900,
+      "memory_mib": 1600
     }
   ],
   "workloads": [
