@@ -25,8 +25,7 @@ def analyze_node_drain(fixture: RawFixture, node_name: str) -> NodeDrainReport:
                     severity="high",
                     pod=pod_ref,
                     message=(
-                        "pod is managed by a DaemonSet and will not be evicted by "
-                        "a standard drain"
+                        "pod is managed by a DaemonSet and will not be evicted by a standard drain"
                     ),
                 )
             )
