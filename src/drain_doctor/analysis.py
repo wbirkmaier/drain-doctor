@@ -15,6 +15,8 @@ def analyze_node_drain(fixture: RawFixture, node_name: str) -> NodeDrainReport:
     )
     blockers: list[DrainFinding] = []
     warnings: list[DrainFinding] = []
+    workload_map = {(item.namespace, item.name): item for item in fixture.workloads}
+    pdb_map = {(item.namespace, item.owner_name): item for item in fixture.pod_disruption_budgets}
 
     for pod in pods:
         pod_ref = f"{pod.namespace}/{pod.name}"
@@ -54,6 +56,36 @@ def analyze_node_drain(fixture: RawFixture, node_name: str) -> NodeDrainReport:
                     severity="medium",
                     pod=pod_ref,
                     message="pod has a long termination grace period and may slow the drain",
+                )
+            )
+        workload = workload_map.get((pod.namespace, pod.owner_name))
+        if workload is not None:
+            if workload.replicas - workload.unavailable_replicas <= 1:
+                blockers.append(
+                    DrainFinding(
+                        kind="replica_shortfall",
+                        severity="high",
+                        pod=pod_ref,
+                        message="workload has no spare healthy replica to absorb this eviction",
+                    )
+                )
+            elif workload.unavailable_replicas > 0:
+                warnings.append(
+                    DrainFinding(
+                        kind="degraded_workload",
+                        severity="medium",
+                        pod=pod_ref,
+                        message="workload already has unavailable replicas before the drain",
+                    )
+                )
+        pdb = pdb_map.get((pod.namespace, pod.owner_name))
+        if pdb is not None and pdb.current_healthy <= pdb.min_available:
+            blockers.append(
+                DrainFinding(
+                    kind="pdb_exhausted",
+                    severity="high",
+                    pod=pod_ref,
+                    message="PodDisruptionBudget does not currently allow another eviction",
                 )
             )
 
