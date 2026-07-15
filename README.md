@@ -31,4 +31,4 @@ DrainDoctor estimates what will block or degrade a Kubernetes node drain before 
 uv run drain-doctor node ip-10-0-42-17 --fixtures tests/fixtures/node-drain
 ```
 
-The current slice analyzes one node from offline fixtures and reports blockers, warnings, PodDisruptionBudget exhaustion, and replica shortfall risk. Broader scheduling and zone analysis land in later slices.
+The current slice analyzes one node from offline fixtures and reports blockers, warnings, PodDisruptionBudget exhaustion, replica shortfall risk, and conservative rescheduling risk from remaining capacity and placement limits. Broader zone analysis lands in later slices.
