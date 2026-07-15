@@ -41,5 +41,30 @@
       "cpu_millicores": 400,
       "memory_mib": 576
     }
+  ],
+  "workloads": [
+    {
+      "kind": "Deployment",
+      "namespace": "payments",
+      "name": "api",
+      "replicas": 3,
+      "unavailable_replicas": 1
+    },
+    {
+      "kind": "StatefulSet",
+      "namespace": "search",
+      "name": "indexer",
+      "replicas": 1,
+      "unavailable_replicas": 0
+    }
+  ],
+  "pod_disruption_budgets": [
+    {
+      "namespace": "payments",
+      "name": "api-availability",
+      "owner_name": "api",
+      "min_available": 2,
+      "current_healthy": 2
+    }
   ]
 }

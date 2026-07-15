@@ -25,9 +25,27 @@ class RawPod(BaseModel):
     memory_mib: int = 0
 
 
+class RawWorkload(BaseModel):
+    kind: str
+    namespace: str
+    name: str
+    replicas: int
+    unavailable_replicas: int = 0
+
+
+class RawPodDisruptionBudget(BaseModel):
+    namespace: str
+    name: str
+    owner_name: str
+    min_available: int
+    current_healthy: int
+
+
 class RawFixture(BaseModel):
     nodes: list[RawNode]
     pods: list[RawPod]
+    workloads: list[RawWorkload] = Field(default_factory=list)
+    pod_disruption_budgets: list[RawPodDisruptionBudget] = Field(default_factory=list)
 
 
 class DrainFinding(BaseModel):
