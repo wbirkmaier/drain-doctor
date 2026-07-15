@@ -10,10 +10,22 @@
       "message": "pod is managed by a DaemonSet and will not be evicted by a standard drain"
     },
     {
+      "kind": "pdb_exhausted",
+      "severity": "high",
+      "pod": "payments/api-7786f8dd7b-mlwzg",
+      "message": "PodDisruptionBudget does not currently allow another eviction"
+    },
+    {
       "kind": "local_storage",
       "severity": "high",
       "pod": "search/indexer-0",
       "message": "pod relies on node-local storage that may require manual handling"
+    },
+    {
+      "kind": "replica_shortfall",
+      "severity": "high",
+      "pod": "search/indexer-0",
+      "message": "workload has no spare healthy replica to absorb this eviction"
     }
   ],
   "warnings": [
@@ -28,6 +40,12 @@
       "severity": "medium",
       "pod": "payments/api-7786f8dd7b-mlwzg",
       "message": "pod has a long termination grace period and may slow the drain"
+    },
+    {
+      "kind": "degraded_workload",
+      "severity": "medium",
+      "pod": "payments/api-7786f8dd7b-mlwzg",
+      "message": "workload already has unavailable replicas before the drain"
     }
   ],
   "total_cpu_millicores": 925,
