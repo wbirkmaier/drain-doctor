@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from drain_doctor.exceptions import DrainDoctorError
-from drain_doctor.models import DrainFinding, NodeDrainReport, RawFixture
+from drain_doctor.models import DrainFinding, NodeDrainReport, NodeGroupDrainReport, RawFixture
 
 
 def analyze_node_drain(fixture: RawFixture, node_name: str) -> NodeDrainReport:
@@ -207,4 +207,19 @@ spec:
         remaining_node_capacity_memory_mib=remaining_memory,
         eviction_sequence=eviction_sequence,
         advisory_patches=advisory_patches,
+    )
+
+
+def analyze_node_group(fixture: RawFixture, node_group: str) -> NodeGroupDrainReport:
+    nodes = sorted(item.name for item in fixture.nodes if item.node_group == node_group)
+    if not nodes:
+        raise DrainDoctorError(f"node group not found in fixture: {node_group}", exit_code=3)
+
+    reports = [analyze_node_drain(fixture, node_name) for node_name in nodes]
+    return NodeGroupDrainReport(
+        node_group=node_group,
+        analyzed_nodes=nodes,
+        node_reports=reports,
+        blocker_count=sum(len(report.blockers) for report in reports),
+        warning_count=sum(len(report.warnings) for report in reports),
     )

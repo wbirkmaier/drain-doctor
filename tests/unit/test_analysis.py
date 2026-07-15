@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from drain_doctor.analysis import analyze_node_drain
+from drain_doctor.analysis import analyze_node_drain, analyze_node_group
 from drain_doctor.fixtures import load_fixture
 
 
@@ -40,3 +40,11 @@ def test_analyze_node_drain_emits_eviction_sequence_and_advisory_patches() -> No
         "kube-system/aws-node-9lm9x",
     ]
     assert len(report.advisory_patches) == 2
+
+
+def test_analyze_node_group_rolls_up_member_reports() -> None:
+    report = analyze_node_group(load_fixture(Path("tests/fixtures/node-drain")), "workers-a")
+
+    assert report.analyzed_nodes == ["ip-10-0-42-17", "ip-10-0-42-18"]
+    assert report.blocker_count == 5
+    assert report.warning_count == 4
